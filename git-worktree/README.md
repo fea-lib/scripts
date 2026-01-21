@@ -83,3 +83,75 @@ Running scripts directly from a URL is a form of **Arbitrary Code Execution (ACE
 - **Use Secure Flags:** Use `curl -fsSL` to ensure the download fails silently if the server returns an error, preventing the shell from executing an error page as code.
 - **Review Code:** Always download and inspect the script content locally before executing it.
 - **Verify Integrity:** Use a SHA256 checksum to validate the file before execution whenever possible.
+
+## Optional: Shell Functions
+
+This guide provides instructions on how to create persistent shell functions to run your worktree automation scripts directly from GitHub. Using **shell functions** instead of aliases is required for these tasks because aliases cannot handle positional arguments (like directory names or branch names), while functions allow you to pass dynamic values directly to the scripts [1, 2].
+
+### Step 1: Open Your Shell Configuration File
+
+To make these commands persistent, you must add them to the configuration file that your shell loads every time you open a new terminal window [7, 8].
+
+*   **For Zsh (Default on macOS):** Use `nano ~/.zshrc` [9, 10].
+*   **For Bash:** Use `nano ~/.bashrc` [9, 10].
+*   **For Warp:** Warp uses your machine's underlying shell (usually Zsh or Bash). Follow the instructions for the shell currently active in your Warp terminal [10].
+
+### Step 2: Copy and Paste the Functions
+
+Scroll to the bottom of the file and paste the following block of code. These functions use the `bash -s --` syntax to ensure your local arguments are passed correctly to the remote script [11, 12].
+
+```bash
+# --- Git Worktree Automation Functions ---
+
+# 1. Clone a Bare Repository
+gwt-clone() {
+  curl -fsSL https://raw.githubusercontent.com/fea-lib/scripts/refs/heads/main/git-worktree/clone-bare.sh | bash -s -- "$1" "$2"
+}
+
+# 2. Add a New Worktree (Detached Mode)
+gwt-add() {
+  curl -fsSL https://raw.githubusercontent.com/fea-lib/scripts/refs/heads/main/git-worktree/add.sh | bash -s -- "$1" "$2"
+}
+
+# 3. Sync/Checkout an Existing Worktree (Detached Mode)
+gwt-checkout() {
+  curl -fsSL https://raw.githubusercontent.com/fea-lib/scripts/refs/heads/main/git-worktree/checkout.sh | bash -s -- "$1" "$2"
+}
+```
+*   **`curl -fsSL`**: These flags ensure the command fails silently if the URL is wrong, preventing your shell from executing a 404 error page [13, 14].
+*   **`"$1" "$2"`**: These are positional parameters that represent the inputs you type after the command [15].
+
+### Step 3: Save and Exit
+
+1.  In the Nano editor, press **`Ctrl + O`** then **`Enter`** to save the file [16].
+2.  Press **`Ctrl + X`** to exit the editor [16].
+
+### Step 4: Reload Your Configuration
+For the changes to take effect in your current terminal session, run the **`source`** command [17, 18]:
+
+```bash
+# If using Zsh
+source ~/.zshrc
+
+# If using Bash
+source ~/.bashrc
+```
+
+---
+
+### Usage Instructions
+
+You can now use these short commands from any directory in your terminal.
+
+**To clone a project:**
+`gwt-clone <git-url> <target-directory>`
+
+**To create a new mindset folder (e.g., 'work'):**
+`gwt-add work <branch-name>`
+
+**To teleport an existing folder (e.g., 'review') to a new branch:**
+`gwt-checkout review <branch-name>`
+
+### Verification Tip
+
+You can verify that a function is correctly loaded by typing `which <function-name>` (e.g., `which gwt-add`). The terminal should display the code block for that function [19].
