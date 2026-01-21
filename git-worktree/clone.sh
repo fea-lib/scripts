@@ -18,7 +18,7 @@ git clone --bare "$GIT_URL" "$TARGET_DIR/.bare"
 
 # 2. Set up the root .git file pointer
 # This allows Git commands to work from the project root.
-echo "git: ./.bare" > "$TARGET_DIR/.git"
+echo "gitdir: ./.bare" > "$TARGET_DIR/.git"
 
 # 3. Create a .shared directory
 # This acts as the single source of truth for .env and other untracked files.
