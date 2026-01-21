@@ -1,5 +1,20 @@
 # Git Worktree: The Persistent Studio Workflow
 
+- [Introduction to Git Worktree](#introduction-to-git-worktree)
+- [Key Advantages](#key-advantages)
+- [The "Persistent Studio" Workflow](#the-persistent-studio-workflow)
+  - [Why use Detached HEAD?](#why-use-detached-head)
+- [Commands](#commands)
+  - [Alternative: Using wget](#alternative-using-wget)
+  - [Running Git Worktree Automation Scripts from GitHub](#running-git-worktree-automation-scripts-from-github)
+- [Optional: Shell Functions](#optional-shell-functions)
+  - [Step 1: Open Your Shell Configuration File](#step-1-open-your-shell-configuration-file)
+  - [Step 2: Copy and Paste the Functions](#step-2-copy-and-paste-the-functions)
+  - [Step 3: Save and Exit](#step-3-save-and-exit)
+  - [Step 4: Reload Your Configuration](#step-4-reload-your-configuration)
+  - [Usage Instructions](#usage-instructions)
+  - [Verification Tip](#verification-tip)
+
 ## Introduction to Git Worktree
 
 **Git worktree** is a powerful feature that allows you to check out multiple branches of a single repository simultaneously into separate directories. Unlike the traditional "single-threaded" development process where you must `git stash` or commit unfinished work to switch branches, worktrees enable a **multi-threaded environment** where different tasks live in their own "parallel universes".
