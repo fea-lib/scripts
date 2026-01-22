@@ -15,6 +15,7 @@
   - [Usage Instructions](#usage-instructions)
   - [Verification Tip](#verification-tip)
 - [Optional: Setup files locally](#optional-setup-files-locally)
+  - [Verification Tip](#verification-tip-1)
 
 ## Introduction to Git Worktree
 
@@ -178,3 +179,7 @@ If you prefer to use the git-worktree scripts from your local machine (for speed
 ```bash
 curl -fsSL https://raw.githubusercontent.com/fea-lib/scripts/refs/heads/main/git-worktree/setup.sh | bash
 ```
+
+### Verification Tip
+
+You can verify that a function is correctly loaded by typing `which <function-name>` (e.g., `which gwt-add`). The terminal should display the code block for that function.
