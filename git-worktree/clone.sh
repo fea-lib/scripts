@@ -35,9 +35,9 @@ HOOK_PATH="$TARGET_DIR/.bare/hooks/post-checkout"
 cat << 'EOF' > "$HOOK_PATH"
 #!/bin/bash
 
-# $1 is the previous HEAD, $2 is the new HEAD, $3 is a flag (1 for branch checkout).
-# All zeros in $1 indicates a new worktree/checkout.
-if [[ "$1" == "0000000000000000000000000000000000000000" ]]; then
+# $1 is the previous HEAD, $2 is the new HEAD, $3 is a flag (1 for branch checkout, 1 for file checkout).
+# A branch checkout in a new worktree will have $3=1.
+if [[ "$3" == "1" ]]; then
     WORKTREE_DIR=$(pwd)
     # Locate the .shared directory (sibling to worktree folders)
     SHARED_DIR="$(dirname "$WORKTREE_DIR")/.shared"
