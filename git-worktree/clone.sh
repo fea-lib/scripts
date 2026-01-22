@@ -20,11 +20,15 @@ git clone --bare "$GIT_URL" "$TARGET_DIR/.bare"
 # This allows Git commands to work from the project root.
 echo "gitdir: ./.bare" > "$TARGET_DIR/.git"
 
-# 3. Create a .shared directory
+# 3. Configure hooks path
+# This tells Git to look for hooks in the .bare/hooks directory.
+(cd "$TARGET_DIR" && git config core.hooksPath .bare/hooks)
+
+# 4. Create a .shared directory
 # This acts as the single source of truth for .env and other untracked files.
 mkdir -p "$TARGET_DIR/.shared"
 
-# 4. Create the post-checkout hook for automatic symlinking
+# 5. Create the post-checkout hook for automatic symlinking
 # This hook runs every time a new worktree is created.
 HOOK_PATH="$TARGET_DIR/.bare/hooks/post-checkout"
 
