@@ -6,14 +6,15 @@
   - [Why use Detached HEAD?](#why-use-detached-head)
 - [Commands](#commands)
   - [Alternative: Using wget](#alternative-using-wget)
-  - [Running Git Worktree Automation Scripts from GitHub](#running-git-worktree-automation-scripts-from-github)
-- [Optional: Shell Functions](#optional-shell-functions)
+  - [⚠️ Security Warning: Remote Code Execution (RCE)](#️-security-warning-remote-code-execution-rce)
+- [Shell Functions](#shell-functions)
   - [Step 1: Open Your Shell Configuration File](#step-1-open-your-shell-configuration-file)
   - [Step 2: Copy and Paste the Functions](#step-2-copy-and-paste-the-functions)
   - [Step 3: Save and Exit](#step-3-save-and-exit)
   - [Step 4: Reload Your Configuration](#step-4-reload-your-configuration)
   - [Usage Instructions](#usage-instructions)
   - [Verification Tip](#verification-tip)
+- [Optional: Setup files locally](#optional-setup-files-locally)
 
 ## Introduction to Git Worktree
 
@@ -39,13 +40,11 @@ By using a **bare repository** to house the Git database (`.bare/`), you keep yo
 
 ### Why use Detached HEAD?
 
-According to the sources, using `--detach` is the most effective way to manage multiple worktrees because:
+In the "Persistent Studio" workflow, using `--detach` is central to maintaining a flexible, mindset-driven environment. Detached HEAD mode allows each permanent worktree (like `work/`, `review/`, or `hotfix/`) to freely switch between branches as your focus shifts, without the usual Git restrictions. This approach offers:
 
-- **Flexibility:** You can point any worktree folder to any branch at any time without Git complaining that the branch is already in use elsewhere.
-- **Context Preservation:** You can leave your primary `work/` folder in a messy, uncommitted state while using `checkout.sh` on a `review/` folder to quickly inspect a teammate's PR,.
-- **Speed:** Since the directory (and its `node_modules` or dependencies) already exists, switching branches is nearly instant compared to a clean checkout and install,.
-
----
+- **Maximum Flexibility:** Instantly repurpose any worktree folder for any branch, at any time, without Git blocking you because a branch is "already checked out" elsewhere.
+- **Seamless Context Switching:** Keep your main `work/` directory in progress—even with uncommitted changes—while using `checkout.sh` to quickly review a teammate's PR or address a hotfix in another folder.
+- **Efficiency:** Since dependencies and build artifacts remain in place, switching branches in an existing worktree is nearly instant, eliminating the overhead of repeated installs or setup.
 
 ## Commands
 
@@ -85,11 +84,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/fea-lib/scripts/refs/heads/ma
 
 _Note: Using the `<(command)` syntax (Process Substitution) allows the shell to treat the output of the download as a file path, which is sometimes more reliable for interactive scripts._
 
-### Running Git Worktree Automation Scripts from GitHub
-
-This document provides sample commands for executing the **Git Worktree "Persistent Studio"** automation scripts directly from their remote GitHub repository.
-
-#### ⚠️ Security Warning: Remote Code Execution (RCE)
+### ⚠️ Security Warning: Remote Code Execution (RCE)
 
 Running scripts directly from a URL is a form of **Arbitrary Code Execution (ACE)**, meaning an attacker could potentially run any command of their choice on your machine if the source is compromised. These scripts run with your current user privileges, allowing them to modify files or access sensitive data.
 
@@ -99,21 +94,21 @@ Running scripts directly from a URL is a form of **Arbitrary Code Execution (ACE
 - **Review Code:** Always download and inspect the script content locally before executing it.
 - **Verify Integrity:** Use a SHA256 checksum to validate the file before execution whenever possible.
 
-## Optional: Shell Functions
+## Shell Functions
 
-This guide provides instructions on how to create persistent shell functions to run your worktree automation scripts directly from GitHub. Using **shell functions** instead of aliases is required for these tasks because aliases cannot handle positional arguments (like directory names or branch names), while functions allow you to pass dynamic values directly to the scripts [1, 2].
+This guide provides instructions on how to create persistent shell functions to run your worktree automation scripts directly from GitHub. Using **shell functions** instead of aliases is required for these tasks because aliases cannot handle positional arguments (like directory names or branch names), while functions allow you to pass dynamic values directly to the scripts.
 
 ### Step 1: Open Your Shell Configuration File
 
-To make these commands persistent, you must add them to the configuration file that your shell loads every time you open a new terminal window [7, 8].
+To make these commands persistent, you must add them to the configuration file that your shell loads every time you open a new terminal window.
 
-*   **For Zsh (Default on macOS):** Use `nano ~/.zshrc` [9, 10].
-*   **For Bash:** Use `nano ~/.bashrc` [9, 10].
-*   **For Warp:** Warp uses your machine's underlying shell (usually Zsh or Bash). Follow the instructions for the shell currently active in your Warp terminal [10].
+- **For Zsh (Default on macOS):** Use `nano ~/.zshrc`.
+- **For Bash:** Use `nano ~/.bashrc`.
+- **For Warp:** Warp uses your machine's underlying shell (usually Zsh or Bash). Follow the instructions for the shell currently active in your Warp terminal.
 
 ### Step 2: Copy and Paste the Functions
 
-Scroll to the bottom of the file and paste the following block of code. These functions use the `bash -s --` syntax to ensure your local arguments are passed correctly to the remote script [11, 12].
+Scroll to the bottom of the file and paste the following block of code. These functions use the `bash -s --` syntax to ensure your local arguments are passed correctly to the remote script.
 
 ```bash
 # --- Git Worktree Automation Functions ---
@@ -133,16 +128,18 @@ gwt-checkout() {
   curl -fsSL https://raw.githubusercontent.com/fea-lib/scripts/refs/heads/main/git-worktree/checkout.sh | bash -s -- "$1" "$2"
 }
 ```
-*   **`curl -fsSL`**: These flags ensure the command fails silently if the URL is wrong, preventing your shell from executing a 404 error page [13, 14].
-*   **`"$1" "$2"`**: These are positional parameters that represent the inputs you type after the command [15].
+
+- **`curl -fsSL`**: These flags ensure the command fails silently if the URL is wrong, preventing your shell from executing a 404 error page.
+- **`"$1" "$2"`**: These are positional parameters that represent the inputs you type after the command.
 
 ### Step 3: Save and Exit
 
-1.  In the Nano editor, press **`Ctrl + O`** then **`Enter`** to save the file [16].
-2.  Press **`Ctrl + X`** to exit the editor [16].
+1.  In the Nano editor, press **`Ctrl + O`** then **`Enter`** to save the file.
+2.  Press **`Ctrl + X`** to exit the editor.
 
 ### Step 4: Reload Your Configuration
-For the changes to take effect in your current terminal session, run the **`source`** command [17, 18]:
+
+For the changes to take effect in your current terminal session, run the **`source`** command:
 
 ```bash
 # If using Zsh
@@ -151,8 +148,6 @@ source ~/.zshrc
 # If using Bash
 source ~/.bashrc
 ```
-
----
 
 ### Usage Instructions
 
@@ -169,4 +164,17 @@ You can now use these short commands from any directory in your terminal.
 
 ### Verification Tip
 
-You can verify that a function is correctly loaded by typing `which <function-name>` (e.g., `which gwt-add`). The terminal should display the code block for that function [19].
+You can verify that a function is correctly loaded by typing `which <function-name>` (e.g., `which gwt-add`). The terminal should display the code block for that function.
+
+## Optional: Setup files locally
+
+If you prefer to use the git-worktree scripts from your local machine (for speed, offline use, or security), you can set up everything with a single command. This will:
+
+- Download the latest versions of the scripts (`add.sh`, `checkout.sh`, `clone.sh`) into `~/.fea-scripts/`
+- Print out shell functions you can add to your shell config, so you can use `gwt-clone`, `gwt-add`, and `gwt-checkout` with your local scripts
+
+**To set up locally, run:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/fea-lib/scripts/refs/heads/main/git-worktree/setup.sh | bash
+```
