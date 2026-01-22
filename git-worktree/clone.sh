@@ -28,42 +28,48 @@ echo "gitdir: ./.bare" > "$TARGET_DIR/.git"
 # This acts as the single source of truth for .env and other untracked files.
 mkdir -p "$TARGET_DIR/.shared"
 
-# 5. Create the post-checkout hook for automatic symlinking
-# This hook runs every time a new worktree is created.
-HOOK_PATH="$TARGET_DIR/.bare/hooks/post-checkout"
+# 5. Create the post-add script for automatic symlinking
+# This script runs every time a new worktree is added.
+SCRIPTS_DIR="$TARGET_DIR/.scripts"
+mkdir -p "$SCRIPTS_DIR"
+POST_ADD_SCRIPT_PATH="$SCRIPTS_DIR/post-add.sh"
 
-cat << 'EOF' > "$HOOK_PATH"
+cat << 'EOF' > "$POST_ADD_SCRIPT_PATH"
 #!/bin/bash
 
-# $1 is the previous HEAD, $2 is the new HEAD, $3 is a flag (1 for branch checkout, 1 for file checkout).
-# A branch checkout in a new worktree will have $3=1.
-if [[ "$3" == "1" ]]; then
-    WORKTREE_DIR=$(pwd)
-    # Locate the .shared directory (sibling to worktree folders)
-    SHARED_DIR="$(dirname "$WORKTREE_DIR")/.shared"
+WORKTREE_DIR=$1
 
-    if [ -d "$SHARED_DIR" ]; then
-        echo "🔗 Linking shared files from .shared to $WORKTREE_DIR..."
+if [ -z "$WORKTREE_DIR" ]; then
+    echo "Usage: $0 <worktree-directory>"
+    exit 1
+fi
+
+# Locate the .shared directory (sibling to worktree folders)
+SHARED_DIR="$(dirname "$WORKTREE_DIR")/.shared"
+
+if [ -d "$SHARED_DIR" ]; then
+    echo "🔗 Linking shared files from .shared to $WORKTREE_DIR..."
+    
+    # Iterate through files in .shared and create relative symlinks.
+    find "$SHARED_DIR" -type f | while read -r src_file; do
+        # Calculate the relative path from .shared to the file
+        rel_path="${src_file#$SHARED_DIR/}"
+        target_file="$WORKTREE_DIR/$rel_path"
         
-        # Iterate through files in .shared and create relative symlinks.
-        find "$SHARED_DIR" -type f | while read -r src_file; do
-            # Calculate the relative path from .shared to the file
-            rel_path="${src_file#$SHARED_DIR/}"
-            target_file="$WORKTREE_DIR/$rel_path"
-            
-            # Ensure the target subdirectory exists in the new worktree
-            mkdir -p "$(dirname "$target_file")"
-            
-            # Create a symbolic link (pointer) to the shared file.
-            ln -sf "$src_file" "$target_file"
-            echo "   ✅ Linked $rel_path"
-        done
-    fi
+        # Ensure the target subdirectory exists in the new worktree
+        mkdir -p "$(dirname "$target_file")"
+        
+        # Create a symbolic link (pointer) to the shared file.
+        ln -sf "$src_file" "$target_file"
+        echo "   ✅ Linked $rel_path"
+    done
+else
+    echo "$SHARED_DIR is not a directory. Skipping shared file linking."
 fi
 EOF
 
-# Ensure the hook is executable
-chmod +x "$HOOK_PATH"
+# Ensure the script is executable
+chmod +x "$POST_ADD_SCRIPT_PATH"
 
 echo "✅ Setup complete."
 echo "   1. Place your .env or other config files in $TARGET_DIR/.shared"

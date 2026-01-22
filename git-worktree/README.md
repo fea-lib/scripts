@@ -16,6 +16,8 @@
   - [Verification Tip](#verification-tip)
 - [Optional: Setup files locally](#optional-setup-files-locally)
   - [Verification Tip](#verification-tip-1)
+- [Advanced: Automatically Run `(p)npm install`](#advanced-automatically-run-pnpm-install)
+  - [Example: `post-add.sh` extension](#example-post-addsh-extension)
 
 ## Introduction to Git Worktree
 
@@ -183,3 +185,28 @@ curl -fsSL https://raw.githubusercontent.com/fea-lib/scripts/refs/heads/main/git
 ### Verification Tip
 
 You can verify that a function is correctly loaded by typing `which <function-name>` (e.g., `which gwt-add`). The terminal should display the code block for that function.
+
+## Advanced: Automatically Run `(p)npm install`
+
+To automatically run `pnpm install` after creating a worktree, you can add your custom logic to the `.scripts/post-add.sh` file. This script is created by `clone.sh` and is automatically executed by `add.sh` after a new worktree is set up.
+
+The `post-add.sh` script already handles symlinking files from the `.shared` directory. You should **append** your custom logic to this existing file.
+
+### Example: `post-add.sh` extension
+
+Append the following to the `.scripts/post-add.sh` file in your project's root directory:
+
+```bash
+# Auto-install dependencies after checkout
+if [ -f "pnpm-lock.yaml" ]; then
+  echo ">>> Found pnpm-lock.yaml, running pnpm install..."
+  pnpm install
+elif [ -f "package-lock.json" ]; then
+  echo ">>> Found package-lock.json, running npm install..."
+  npm install
+fi
+```
+
+Since the `post-add.sh` script is already executable, you don't need to change its permissions.
+
+Now, whenever you use `gwt-add` or `gwt-checkout`, this script will run, symlink your shared files, and then automatically install dependencies if a `pnpm-lock.yaml` or `package-lock.json` file is present.

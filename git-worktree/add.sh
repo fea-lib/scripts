@@ -22,5 +22,12 @@ git worktree add --detach "$WORKTREE_FOLDER" "$BRANCH_NAME"
 echo "✅ Worktree created. Navigating to directory..."
 cd "$WORKTREE_FOLDER" || exit
 
-# Optional: If you use the symlink hook created previously, 
-# it will trigger automatically upon checkout.
+# Run the post-add script to link shared files.
+POST_ADD_SCRIPT="$GIT_ROOT/.scripts/post-add.sh"
+if [ -f "$POST_ADD_SCRIPT" ]; then
+    echo "🚀 Running post-add script..."
+    # Pass the absolute path to the worktree directory
+    /bin/bash "$POST_ADD_SCRIPT" "$GIT_ROOT/$WORKTREE_FOLDER"
+else
+    echo "⚠️ Post-add script not found at $POST_ADD_SCRIPT"
+fi
