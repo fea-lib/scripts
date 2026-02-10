@@ -16,19 +16,27 @@ echo "🚀 Initializing bare repository and Studio Workflow in: $TARGET_DIR"
 mkdir -p "$TARGET_DIR"
 git clone --bare "$GIT_URL" "$TARGET_DIR/.bare"
 
-# 2. Set up the root .git file pointer
+
+# 2. Fix: set correct fetch refspec permanently
+# Ensures new remote branches always show up in worktrees.
+(
+    cd "$TARGET_DIR/.bare"
+    git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+)
+
+# 3. Set up the root .git file pointer
 # This allows Git commands to work from the project root.
 echo "gitdir: ./.bare" > "$TARGET_DIR/.git"
 
-# 3. Configure hooks path
+# 4. Configure hooks path
 # This tells Git to look for hooks in the .bare/hooks directory.
 (cd "$TARGET_DIR" && git config core.hooksPath .bare/hooks)
 
-# 4. Create a .shared directory
+# 5. Create a .shared directory
 # This acts as the single source of truth for .env and other untracked files.
 mkdir -p "$TARGET_DIR/.shared"
 
-# 5. Create the post-add script for automatic symlinking
+# 6. Create the post-add script for automatic symlinking
 # This script runs every time a new worktree is added.
 SCRIPTS_DIR="$TARGET_DIR/.scripts"
 mkdir -p "$SCRIPTS_DIR"
