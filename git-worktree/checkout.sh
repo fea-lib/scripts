@@ -1,11 +1,12 @@
 #!/bin/bash
-# Usage: ./checkout.sh <target-worktree-folder> <branch-name>
+# Usage: ./checkout.sh <target-worktree-folder> <branch-name> [--detach]
 
 WORKTREE_FOLDER=$1
 BRANCH_NAME=$2
+DETACH_MODE=$3
 
 if [ -z "$WORKTREE_FOLDER" ] || [ -z "$BRANCH_NAME" ]; then
-    echo "Usage: $0 <target-worktree-folder> <branch-name>"
+    echo "Usage: $0 <target-worktree-folder> <branch-name> [--detach]"
     exit 1
 fi
 
@@ -14,17 +15,25 @@ if [ ! -d "$WORKTREE_FOLDER" ]; then
     exit 1
 fi
 
-echo "🔄 Syncing worktree '$WORKTREE_FOLDER' to branch '$BRANCH_NAME'..."
+if [ "$DETACH_MODE" = "--detach" ]; then
+    echo "🔄 Syncing worktree '$WORKTREE_FOLDER' to branch '$BRANCH_NAME' (detached)..."
+else
+    echo "🔄 Syncing worktree '$WORKTREE_FOLDER' to branch '$BRANCH_NAME'..."
+fi
 
-# Enter the specific worktree directory
 cd "$WORKTREE_FOLDER" || exit
 
-# Fetch the latest changes from the remote
 git fetch origin
 
-# Checkout the branch in detached mode
-# This allows you to inspect any branch or PR without conflicts.
-git checkout --detach "$BRANCH_NAME"
+if [ "$DETACH_MODE" = "--detach" ]; then
+    # Detached mode
+    git checkout --detach "$BRANCH_NAME"
+else
+    # Regular mode
+    git checkout "$BRANCH_NAME"
+    # Set upstream if not already set
+    git branch --set-upstream-to=origin/"$BRANCH_NAME" "$BRANCH_NAME" 2>/dev/null || true
+fi
 
 # Best Practice: Re-link or update environment files here if needed,
 # ln -sf ../.shared/.env .env

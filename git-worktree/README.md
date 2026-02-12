@@ -63,18 +63,21 @@ curl -fsSL https://raw.githubusercontent.com/fea-lib/scripts/refs/heads/main/git
 
 #### 2. Add a New Worktree
 
-This script creates a new worktree folder at the specified path and checks out the desired branch in **detached mode** to maintain workflow flexibility.
+This script creates a new worktree folder at the specified path and checks out the desired branch. By default, it checks out the branch in regular mode (with tracking), but you can add `--detach` as an optional third parameter to use detached mode for maximum flexibility.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/fea-lib/scripts/refs/heads/main/git-worktree/add.sh | bash -s -- <target-worktree-folder> <branch-name>
+curl -fsSL https://raw.githubusercontent.com/fea-lib/scripts/refs/heads/main/git-worktree/add.sh | bash -s -- <target-worktree-folder> <branch-name> [--detach]
 ```
+
+- Omit `--detach` for a regular worktree (recommended for main development branches; enables `git pull` and push).
+- Add `--detach` to allow the worktree to freely switch branches (recommended for mindset-based folders like `review/`, `scratch/`, etc.).
 
 #### 3. Sync or Checkout a Branch in an Existing Worktree
 
-This script "teleports" an existing mindset-based worktree (like `review` or `scratch`) to a specific branch after fetching the latest changes from the remote origin.
+This script "teleports" an existing mindset-based worktree (like `review` or `scratch`) to a specific branch after fetching the latest changes from the remote origin. By default, it checks out the branch in regular mode, but you can add `--detach` as an optional third parameter to use detached mode.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/fea-lib/scripts/refs/heads/main/git-worktree/checkout.sh | bash -s -- <target-worktree-folder> <branch-name>
+curl -fsSL https://raw.githubusercontent.com/fea-lib/scripts/refs/heads/main/git-worktree/checkout.sh | bash -s -- <target-worktree-folder> <branch-name> [--detach]
 ```
 
 ### Alternative: Using wget
@@ -121,14 +124,15 @@ gwt-clone() {
   curl -fsSL https://raw.githubusercontent.com/fea-lib/scripts/refs/heads/main/git-worktree/clone-bare.sh | bash -s -- "$1" "$2"
 }
 
-# 2. Add a New Worktree (Detached Mode)
+
+# 2. Add a New Worktree (optionally detached)
 gwt-add() {
-  curl -fsSL https://raw.githubusercontent.com/fea-lib/scripts/refs/heads/main/git-worktree/add.sh | bash -s -- "$1" "$2"
+  curl -fsSL https://raw.githubusercontent.com/fea-lib/scripts/refs/heads/main/git-worktree/add.sh | bash -s -- "$1" "$2" "$3"
 }
 
-# 3. Sync/Checkout an Existing Worktree (Detached Mode)
+# 3. Sync/Checkout an Existing Worktree (optionally detached)
 gwt-checkout() {
-  curl -fsSL https://raw.githubusercontent.com/fea-lib/scripts/refs/heads/main/git-worktree/checkout.sh | bash -s -- "$1" "$2"
+  curl -fsSL https://raw.githubusercontent.com/fea-lib/scripts/refs/heads/main/git-worktree/checkout.sh | bash -s -- "$1" "$2" "$3"
 }
 ```
 
@@ -159,11 +163,18 @@ You can now use these short commands from any directory in your terminal.
 **To clone a project:**
 `gwt-clone <git-url> <target-directory>`
 
-**To create a new mindset folder (e.g., 'work'):**
+
+**To create a new mindset folder (e.g., 'work') in regular mode:**
 `gwt-add work <branch-name>`
 
-**To teleport an existing folder (e.g., 'review') to a new branch:**
+**To create a new mindset folder in detached mode:**
+`gwt-add work <branch-name> --detach`
+
+**To teleport an existing folder (e.g., 'review') to a new branch in regular mode:**
 `gwt-checkout review <branch-name>`
+
+**To teleport an existing folder to a new branch in detached mode:**
+`gwt-checkout review <branch-name> --detach`
 
 ### Verification Tip
 
