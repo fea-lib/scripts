@@ -29,12 +29,12 @@ gwt-clone() {
 
 # 2. Add a New Worktree (Detached Mode)
 gwt-add() {
-  bash "$TARGET_DIR/add.sh" "\$1" "\$2"
+  bash "$TARGET_DIR/add.sh" "\$1" "\$2" "\$3"
 }
 
 # 3. Sync/Checkout an Existing Worktree (Detached Mode)
 gwt-checkout() {
-  bash "$TARGET_DIR/checkout.sh" "\$1" "\$2"
+  bash "$TARGET_DIR/checkout.sh" "\$1" "\$2" "\$3"
 }
 EOF
 }

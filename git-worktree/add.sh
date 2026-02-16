@@ -1,11 +1,12 @@
-
 #!/bin/bash
 # Usage: ./add.sh <target-worktree-folder> <branch-name> [--detach]
 
+set -euo pipefail
+
 # Parse arguments
-WORKTREE_FOLDER=$1
-BRANCH_NAME=$2
-DETACH_MODE=$3
+WORKTREE_FOLDER=${1-}
+BRANCH_NAME=${2-}
+DETACH_MODE=${3-}
 
 # Validate that both parameters are provided
 if [ -z "$WORKTREE_FOLDER" ] || [ -z "$BRANCH_NAME" ]; then
@@ -23,11 +24,22 @@ fi
 GIT_ROOT=$(pwd)
 
 if [ "$DETACH_MODE" = "--detach" ]; then
-    # Detached mode
-    git worktree add --detach "$WORKTREE_FOLDER" "$BRANCH_NAME"
+    # Detached mode: use commit hash instead of branch name to avoid branch locking
+    COMMIT_HASH=$(git rev-parse --verify "$BRANCH_NAME^{commit}" 2>/dev/null || true)
+    if [ -z "$COMMIT_HASH" ]; then
+        echo "❌ Could not resolve commit for '$BRANCH_NAME'."
+        exit 1
+    fi
+    if ! git worktree add --detach "$WORKTREE_FOLDER" "$COMMIT_HASH"; then
+        echo "❌ Failed to create detached worktree at commit '$COMMIT_HASH'."
+        exit 1
+    fi
 else
     # Regular mode (with branch tracking)
-    git worktree add "$WORKTREE_FOLDER" "$BRANCH_NAME"
+    if ! git worktree add "$WORKTREE_FOLDER" "$BRANCH_NAME"; then
+        echo "❌ Failed to create worktree for branch '$BRANCH_NAME'."
+        exit 1
+    fi
     # Set upstream if not already set
     (cd "$WORKTREE_FOLDER" && git branch --set-upstream-to=origin/"$BRANCH_NAME" "$BRANCH_NAME" 2>/dev/null || true)
 fi
