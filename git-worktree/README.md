@@ -1,3 +1,7 @@
+---
+title: 'Git Worktree: The Persistent Studio Workflow'
+---
+
 # Git Worktree: The Persistent Studio Workflow
 
 - [Introduction to Git Worktree](#introduction-to-git-worktree)
